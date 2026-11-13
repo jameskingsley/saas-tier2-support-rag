@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import requests
 
@@ -8,8 +9,8 @@ st.set_page_config(
     layout="wide",
 )
 
-# FastAPI Backend URL
-API_URL = "http://127.0.0.1:8000/api/v1/triage"
+# FastAPI Backend URL (falls back to Render production endpoint)
+API_URL = os.getenv("API_URL", "https://saas-tier2-support-rag.onrender.com/api/v1/triage")
 
 # Header
 st.title("Tier-2 B2B SaaS Support Triage Copilot")
@@ -26,7 +27,7 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### System Status")
-    st.info("Connected to FastAPI Backend\n\nEndpoint: `http://127.0.0.1:8000`")
+    st.success(f"Connected to FastAPI Backend\n\nEndpoint: `{API_URL}`")
 
 # Main Interface Layout
 col1, col2 = st.columns([1.2, 0.8])
@@ -53,7 +54,7 @@ with col1:
                     else:
                         st.error(f"API Error ({response.status_code}): {response.text}")
                 except requests.exceptions.ConnectionError:
-                    st.error("Could not connect to FastAPI backend. Ensure Uvicorn is running (`uvicorn app.api:app --reload`).")
+                    st.error(f"Could not connect to FastAPI backend at `{API_URL}`. Ensure the service is active.")
                 except Exception as e:
                     st.error(f"Error during request: {e}")
 
